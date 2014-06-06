@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/function"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/script"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UserLib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/userLib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

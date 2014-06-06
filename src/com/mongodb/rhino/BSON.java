@@ -15,7 +15,7 @@ package com.mongodb.rhino;
  * Conversion between native Rhino objects and BSON.
  * <p>
  * This class can be used directly in Rhino.
- * 
+ * 3
  * @author Tal Liron
  */
 public class BSON
