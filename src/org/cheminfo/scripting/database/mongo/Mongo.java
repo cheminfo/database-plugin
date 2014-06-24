@@ -4,8 +4,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import org.cheminfo.function.Function;
-import org.cheminfo.script.utility.Shared;
-import org.cheminfo.script.utility.URLFileManager;
+//import org.cheminfo.script.utility.Shared;
+//import org.cheminfo.script.utility.URLFileManager;
 
 import org.mozilla.javascript.NativeObject;
 
@@ -44,7 +44,7 @@ public class Mongo extends Function {
 		if(!dbName.matches("[a-zA-Z0-9_]{3,20}"))
 			return "{\"result\":\"nok\",\"message\":\"Invalid database name\"}";
 		try {
-			MongoClientURI mongoURI = new MongoClientURI(Shared.getProperty("MONGO_URI","mongodb://localhost"));
+			MongoClientURI mongoURI = new MongoClientURI("");//hared.getProperty("MONGO_URI","mongodb://localhost"));
 			
 			MongoClient client = new MongoClient(mongoURI);
 			List<String> names = client.getDatabaseNames();
@@ -56,8 +56,8 @@ public class Mongo extends Function {
 			DB database = client.getDB(dbName);
 			DBCollection collection = database.getCollection("test");
 			collection.insert(new BasicDBObject("test","test"));
-			String rKey=URLFileManager.getFileKey(dbName, false);
-			String wKey=URLFileManager.getFileKey(dbName, true);
+			String rKey="";//URLFileManager.getFileKey(dbName, false);
+			String wKey="";//URLFileManager.getFileKey(dbName, true);
 			client.close();
 			return "{\"result\":\"ok\",\"read\":\""+rKey+"\",\"write\":\""+wKey+"\"}";
 			

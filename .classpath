@@ -3,7 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/function"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/script"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/userLib"/>
+	<classpathentry kind="lib" path="/script/WebContent/WEB-INF/lib/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="lib" path="/script/WebContent/WEB-INF/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="/script/WebContent/WEB-INF/lib/json.jar"/>
+	<classpathentry kind="lib" path="/script/WebContent/WEB-INF/lib/multipartrequest.jar"/>
+	<classpathentry kind="lib" path="/script/WebContent/WEB-INF/lib/scripting.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

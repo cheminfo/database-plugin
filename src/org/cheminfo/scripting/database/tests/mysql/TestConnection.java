@@ -10,11 +10,11 @@ public class TestConnection {
 		
 		MySQL plugin = new MySQL();
 		
-		MySQLDatabase conn = plugin.getDb("server","dbname","user","password");
+		MySQLDatabase conn = plugin.getDb("localhost","test","","");
 		
-		MySQLTable table = conn.getTable("table");
+		MySQLTable table = conn.selectTable("table1");
 		
-		table.selectQuery();
+		table.selectQuery("field1 in (1,2)");
 
 	}
 

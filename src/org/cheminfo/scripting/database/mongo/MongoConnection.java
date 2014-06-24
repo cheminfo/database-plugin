@@ -10,8 +10,8 @@ import java.util.Set;
 import org.bson.types.ObjectId;
 import org.cheminfo.function.Function;
 import org.cheminfo.function.scripting.SecureFileManager;
-import org.cheminfo.script.utility.Shared;
-import org.cheminfo.script.utility.URLFileManager;
+//import org.cheminfo.script.utility.Shared;
+//import org.cheminfo.script.utility.URLFileManager;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -51,7 +51,7 @@ public class MongoConnection {
 		// Mode : db - key
 		if(DEBUG)System.out.println("mode db-key");
 		
-		MongoClientURI mongoURI = new MongoClientURI(Shared.getProperty("MONGO_URI","mongodb://localhost"));
+		MongoClientURI mongoURI = new MongoClientURI("");//Shared.getProperty("MONGO_URI","mongodb://localhost"));
 
 		if(!db.matches("[a-zA-Z0-9_]{3,20}")) { // Abort if database name is invalid
 			if(DEBUG)System.out.println("MongoConnection refused: invalid database name");
@@ -82,7 +82,7 @@ public class MongoConnection {
 		// Mode : path - key
 		if(DEBUG)System.out.println("mode path-key");
 		
-		MongoClientURI mongoURI = new MongoClientURI(Shared.getProperty("MONGO_URI","mongodb://localhost"));
+		MongoClientURI mongoURI = new MongoClientURI("");//Shared.getProperty("MONGO_URI","mongodb://localhost"));
 
 		if(!isSuperUser(basedir, basedirkey)) { // Only super users have access to a personal database
 			if(DEBUG)System.out.println("MongoConnection refused: not super user");
@@ -228,8 +228,8 @@ public class MongoConnection {
 	}
 
 	private int getAccess(String dbName, String key) {
-		String rKey=URLFileManager.getFileKey(dbName, false);
-		String wKey=URLFileManager.getFileKey(dbName, true);
+		String rKey="";//URLFileManager.getFileKey(dbName, false);
+		String wKey="";//URLFileManager.getFileKey(dbName, true);
 
 		if (key.equals(rKey))
 			return ACCESS_RO;
@@ -383,8 +383,9 @@ public class MongoConnection {
 	public static boolean isSuperUser(String basedir, String basedirkey) {
 		if(SecureFileManager.getValidatedFilename(basedir,basedirkey, "") == null)
 			return false;
-		if(!Shared.isFirstLevel(basedir))
-			return false;
+		//TODO remove those comments
+		//if(!Shared.isFirstLevel(basedir))
+		//	return false;
 		return true;
 
 	}
