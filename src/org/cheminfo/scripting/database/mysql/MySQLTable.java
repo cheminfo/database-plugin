@@ -6,6 +6,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MySQLTable {
@@ -18,42 +19,45 @@ public class MySQLTable {
 		this.connection = connection;  
 	}
 	
-	public void selectQuery() {
-		selectQuery("",null);
+	public JSONArray selectQuery() {
+		return selectQuery("",null);
 	}
 	
-	public void selectQuery(String query) {
-		selectQuery(query,null);
+	public JSONArray selectQuery(String query) {
+		return selectQuery(query,null);
 	}
 	/**
 	 * Inject me please
 	 * @param query
 	 */
-	public void selectQuery(String query, JSONObject options) {
+	public JSONArray selectQuery(String query, JSONObject options) {
 					
 		Statement stmt;
 		ResultSet rs;
 		
 		try {
+			if(options==null)
+				options=new JSONObject();
 			stmt = connection.createStatement();
 			if(query!=null&&query.length()>0)
 				rs = stmt.executeQuery("SELECT * FROM "+name+" WHERE "+query);
 			else
 				rs = stmt.executeQuery("SELECT * FROM "+name);
 				
-			ResultSetMetaData md = rs.getMetaData();
-			
-			int i=0;
-			while(!rs.isLast()){
-				rs.next();
-				i++;
-			}
-			
-			System.out.println("Found "+md.getColumnCount()+" columns."+" "+i+" rows" );
+			ResultSetParser parser = new ResultSetParser();
+			if(options.has("format")){
+				String format = options.optString("format", "");
+				if(format.compareTo("table")==0)
+					return parser.toTable(rs);
+				if(format.compareTo("json")==0)
+					return parser.toJSON(rs);
+					
+			}else
+				return parser.toJSON(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+		return null;
 	}
 	
 }

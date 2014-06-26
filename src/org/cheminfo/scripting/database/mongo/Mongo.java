@@ -6,7 +6,6 @@ import java.util.List;
 import org.cheminfo.function.Function;
 //import org.cheminfo.script.utility.Shared;
 //import org.cheminfo.script.utility.URLFileManager;
-
 import org.mozilla.javascript.NativeObject;
 
 import com.mongodb.BasicDBObject;

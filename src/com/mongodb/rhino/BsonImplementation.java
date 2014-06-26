@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.bson.types.Symbol;
-
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;

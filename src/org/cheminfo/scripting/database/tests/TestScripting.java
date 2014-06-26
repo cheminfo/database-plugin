@@ -19,7 +19,8 @@ public class TestScripting {
 	public static void main(String[] args) {
 		ScriptingInstance interpreter = new ScriptingInstance("");
 		interpreter.setSafePath("./");
-		String script = getContents(new File("tests/mongo.js"));
+		//String script = getContents(new File("tests/mongo.js"));
+		String script = getContents(new File("src/org/cheminfo/scripting/database/tests/mysqlTest.js"));
 //		script = getContents(new File("tests/transparent.js"));
 		JSONObject result = interpreter.runScript(script);
 		System.out.println(result);
