@@ -1,15 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="Database" name="Create Runnable Jar for Project databasePlugin">
+<project default="database" name="Create Runnable Jar for Project actelionPlugin">
+
+	<taskdef resource="proguard/ant/task.properties" classpath="../library/lib/proguard4_9.jar" />
+	<property name="depdir" location="dependencies" />
+		
+	<!--this file was created by Eclipse Runnable JAR Export Wizard-->
+	<!--ANT 1.7 is required    
+	 -->
+		
+
+	<target name="propconfig">
+		<echo>Java home is ${java.home}</echo>
+		<!-- this seems cumbersome but ant does not allow to alter properties! -->
+		<condition property="pglibs" value="-libraryjars ${java.home}/lib/rt.jar">
+			<os family="mac" />
+		</condition>
+		<condition property="pglibs" value='-libraryjars "${java.home}\\lib\\rt.jar"'>
+			<os family="windows" />
+		</condition>
+		<condition property="pglibs" value="-libraryjars ${java.home}/lib/rt.jar">
+			<os family="unix" />
+		</condition>
+		<condition property="rhino_call" value="extract_rhino" else="dummy">
+			<istrue value="${use_rhino}" />
+		</condition>
+		<tstamp>
+			<format property="build_time" pattern="yyyy-MM-dd-HH" timezone="Europe/Zurich" />
+		</tstamp>
+		<echo>Current build time ${build_time}</echo>
+		<echo>Creating build properties file</echo>
+		<propertyfile file="./bin/build.info">
+			<entry key="build_time" value="${build_time}" />
+		</propertyfile>
+	</target>
+	<!--
+	Clean the dependency directory
+	-->
+	<target name="clean">
+		<delete dir="${depdir}" />
+	</target>
+	<!--
+	To begin with extract all required jars into the dependencies directory 
+	-->
+	<target name="prepare" depends="propconfig">
+		<antcall target="clean">
+		</antcall>
+		<mkdir dir="${depdir}" />
+		<unjar  src="../library/lib/lingpipe-2.4.0.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/jgap.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/jfftpack.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/httpmime-4.3.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/httpcore-4.3.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/httpclient-4.3.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/f2jutil.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/commons-logging-1.1.3.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/commons-lang3-3.0.1.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/commons-codec-1.6.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/json.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/xerbla.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/mysql-connector-java-5.1.30-bin.jar" dest="${depdir}" />
+		<unjar  src="../library/lib/mongo-java-driver-2.11.3.jar" dest="${depdir}" />
+	</target>
 	
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <target name="databasePlugin">
-    	<mkdir dir="jars" />
-        <jar destfile="./jars/databasePlugin.jar" filesetmanifest="mergewithoutmain">
+    <target name="database-full" depends="prepare">
+
+        <jar destfile="./jars/databasePlugin-full.jar" filesetmanifest="mergewithoutmain">
             <fileset dir="bin">
             	<exclude name="**/test/**" />
+            	<exclude name="**/ext-lib/**" />
+            	<exclude name="**/*.sdf" />
+            	<exclude name="images/**" />
             	<exclude name="*/test/*.class" />
-            	<exclude name="**/*.jpg" />
             	<include name="**/*.class" />
             	<include name="**/*.js" />
             	<include name="**/*.txt" />
@@ -18,11 +79,42 @@
         </jar>
     </target>
 	
-	<target name="Database" depends="databasePlugin">
+	<!-- Build the FULL pacakgepackage -->
+	<target name="database" depends="database-full">
+		
+		<proguard>
+			${pglibs}
+			
+			-injars jars/databasePlugin-full.jar
+			-outjar jars/databasePlugin.jar
+			-verbose
+			-ignorewarnings
+			-dontusemixedcaseclassnames
+			
+
+			-keep public class org.cheminfo.scripting.database.*.* {public *;}
+			-keep public class org.cheminfo.database.*.* {public *;}
+			
+			-keep public class com.mysql.jdbc.* {public *;}
+			-keep public class com.mysql.jdbc.*.* {public *;}
+			-keep public class com.mysql.jdbc.*.*.* {public *;}
+			-keep public class com.mysql.fabric.* {public *;}
+			-keep public class com.mysql.fabric.*.* {public *;}
+			-keep public class com.mysql.fabric.*.*.* {public *;}
+			-keep public class java.sql.Connection {public *;}
+			-keep public class java.sql.DriverManager {public *;}
+			-keep public class java.sql.ResultSet {public *;}
+			-keep public class java.sql.SQLException {public *;}
+			-keep public class java.sql.Statement {public *;}
+			-keep public class java.sql.ResultSetMetaData {public *;}
+			
+		</proguard>
+		
+		<!-- For testing the scripting language with a plugin" -->
 		<copy todir="/usr/local/script/plugins">
-		  <fileset dir="./jars/"
-		           includes="databasePlugin.jar"
-		  />
+			<fileset dir="./jars/" includes="databasePlugin.jar" />
 		</copy>
+
 	</target>
+	
 </project>

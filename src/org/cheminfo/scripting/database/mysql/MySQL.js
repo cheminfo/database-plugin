@@ -11,40 +11,53 @@ var DB = DB ? DB : {};
 
 DB.MySQL = function (host,user,pass,dbname) {
 		
-		this.DBMySQL = MYSQLAPI.getDb(host,user,pass,dbname),
+	this.DBMySQL = MYSQLAPI.getDb(host,user,pass,dbname);
 		
-		this.getTableNames = function(){
-			this.DBMySQL.getTableNames();
+};
+
+DB.MySQL.prototype = {
+		getTableNames : function(){
+			return JSON.parse(this.DBMySQL.getTableNames());
 		},
 		
-		this.describeTable = function(tableName){
-			console.log("describeTable XXX");
-			this.DBMySQL.describeTable(tableName);
+		describeTable : function(tableName){
+			return JSON.parse(this.DBMySQL.describeTable(tableName));
 		},
 		
-		this.createTable = function(tableName, structure){
-			this.DBMySQL.createTable(tableName, structure);
+		createTable : function(tableName, structure){
+			return this.DBMySQL.createTable(tableName, structure);
 		},
 		
-		this.insert = function(tableName, structure){
-			this.DBMySQL.insert(tableName, structure);
+		dropTable : function(tableName, options){
+			return this.DBMySQL.dropTable(tableName, options);
 		},
 		
-		this.update = function(tableName, structure){
-			this.DBMySQL.update(tableName, structure);
+		createIndex : function(tableName, columnName, indexName, options){
+			return this.DBMySQL.createIndex(tableName, columnName, indexName, options);
 		},
 		
-		this.delete = function(tableName, structure){
-			this.DBMySQL.delete(tableName, structure);
+		insert : function(tableName, structure){
+			var rs = this.DBMySQL.insert(tableName, structure);
+			return true; 
 		},
 		
-		this.selectTable = function(tableName, where, options){
-			this.DBMySQL.select(tableName, where, options);
+		update : function(tableName, structure){
+			return JSON.parse(this.DBMySQL.update(tableName, structure));
 		},
 		
-		this.select = function(query){
-			this.DBMySQL.select(query);
+		delete2 : function(tableName, structure, options){
+			return this.DBMySQL.delete2(tableName, structure, options);
 		},
 		
-		return this;
+		selectTable : function(tableName, where, options){
+			return JSON.parse(this.DBMySQL.select(tableName, where, options));
+		},
+		
+		select : function(query,options){
+			return JSON.parse(this.DBMySQL.select(query,options));
+		},
+		
+		close : function(){
+			this.DBMySQL.close();
+		}
 };

@@ -6,10 +6,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.cheminfo.function.Function;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class MySQLTable {
+public class MySQLTable extends Function{
 	
 	private Connection connection;
 	private String name;
@@ -30,20 +31,27 @@ public class MySQLTable {
 	 * Inject me please
 	 * @param query
 	 */
-	public JSONArray selectQuery(String query, JSONObject options) {
+	public JSONArray selectQuery(String query, Object optionsO) {
+		JSONObject options = this.checkParameter(optionsO);
 					
 		Statement stmt;
 		ResultSet rs;
-		
+		 
 		try {
 			if(options==null)
-				options=new JSONObject();
+				options = new JSONObject();
 			stmt = connection.createStatement();
-			if(query!=null&&query.length()>0)
-				rs = stmt.executeQuery("SELECT * FROM "+name+" WHERE "+query);
-			else
-				rs = stmt.executeQuery("SELECT * FROM "+name);
-				
+			if(query!=null&&query.length()>0){
+				query="SELECT * FROM "+name+" WHERE "+query;
+			}
+			else{
+				query="SELECT * FROM "+name;
+			}
+			
+			System.out.println(query);
+			
+			rs = stmt.executeQuery(query);	
+			
 			ResultSetParser parser = new ResultSetParser();
 			if(options.has("format")){
 				String format = options.optString("format", "");

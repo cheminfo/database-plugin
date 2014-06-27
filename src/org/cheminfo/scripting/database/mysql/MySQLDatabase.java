@@ -3,11 +3,11 @@ package org.cheminfo.scripting.database.mysql;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
+import org.cheminfo.function.Function;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +16,7 @@ import org.json.JSONObject;
  * @author acastillo and mzasso
  *
  */
-public class MySQLDatabase {
+public class MySQLDatabase extends Function{
 	
 	private Connection connection = null;
 	
@@ -36,10 +36,23 @@ public class MySQLDatabase {
 	 * @return
 	 */
 	public JSONArray getTableNames() {
-		//TODO Implement this function
+		Statement stmt;
+		ResultSet rs;
+		try {
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery("SHOW TABLES");
+			ResultSetParser parser = new ResultSetParser();
+			return  parser.toJSON(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return new JSONArray();
 	}
-	
+	/**
+	 * This function return 
+	 * @param tableName
+	 * @return
+	 */
 	public JSONArray describeTable(String tableName) {
 		Statement stmt;
 		ResultSet rs;
@@ -48,7 +61,7 @@ public class MySQLDatabase {
 			if(tableName!=null&&tableName.length()>0){
 				rs = stmt.executeQuery("DESCRIBE "+tableName);
 				ResultSetParser parser = new ResultSetParser();
-				return parser.toTable(rs);
+				return  parser.toJSON(rs);
 			}
 			
 		} catch (SQLException e) {
@@ -72,18 +85,20 @@ public class MySQLDatabase {
 	 * @param structure
 	 * @return
 	 */
-	public boolean createTable(String tableName, JSONArray structure){	
+	public boolean createTable(String tableName, Object structureO){
+		JSONArray structure = this.checkJSONArray(structureO);
 		Statement stmt;
-		ResultSet rs;
 		try {
 			stmt = connection.createStatement();
-			if(tableName!=null&&tableName.length()>0)
-				rs = stmt.executeQuery("CREATE TABLE "+tableName+"("+this.structure2SQLDefinition(structure)+")");
-			
+			if(tableName!=null&&tableName.length()>0){
+				String query = "CREATE TABLE "+tableName+"("+this.structure2SQLDefinition(structure)+")";
+				///System.out.println(query);
+				return stmt.execute(query);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -96,11 +111,12 @@ public class MySQLDatabase {
 		try {
 			for(int i=0;i<structure.length();i++){
 				JSONObject column = structure.getJSONObject(i);
+				//System.out.println(column);
 				if(column.has("name")&&column.has("type")){
 					//Here you can include as many MYSQL options as you want. 
 					//For now I only want something that works.
-					def+=column.getString("name")+" "+column.getDouble("type");
-					if(column.has("notnull")){
+					def+=column.getString("name")+" "+column.getString("type");
+					if(column.optBoolean("notnull",false)){
 						def+=" NOT NULL";
 					}
 					if(column.optBoolean("autoincrement",false)){
@@ -129,15 +145,15 @@ public class MySQLDatabase {
 					}
 					def+=",";
 				}
-				if(def.endsWith(","))
-					def.substring(0, def.length()-2);
 			}
+			if(def.endsWith(","))
+				def=def.substring(0, def.length()-1);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		return null;
+		return def;
 	}
 	
 	/**
@@ -146,14 +162,25 @@ public class MySQLDatabase {
 	 * @param options
 	 * @return
 	 */
-	public boolean dropTable(String tableName, JSONObject options){
+	public boolean dropTable(String tableName){
+		return dropTable(tableName, null);
+	}
+	
+	/**
+	 * This function destroy a database table.
+	 * @param tableName
+	 * @param options
+	 * @return
+	 */
+	public boolean dropTable(String tableName, Object optionsO){
+		JSONObject options = this.checkParameter(optionsO);
 		Statement stmt;
 		ResultSet rs;
 		if(options==null)
 			options=new JSONObject();
 		String post = "";
 		if(options.optBoolean("ifExists")){	
-			post+=" IF EXISTS";
+			tableName=" IF EXISTS "+tableName;
 		}
 
 		if(options.optBoolean("restrict")){	
@@ -167,14 +194,16 @@ public class MySQLDatabase {
 		try {
 			stmt = connection.createStatement();
 			if(tableName!=null&&tableName.length()>0){
-				rs = stmt.executeQuery("DROP TABLE "+tableName+" "+post);
+				String query = "DROP TABLE "+tableName+" "+post;
+				//System.out.println(query);
+				return stmt.execute(query);
 
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 			
-		return true;
+		return false;
 	}
 	
 	/**
@@ -186,7 +215,8 @@ public class MySQLDatabase {
 	 * @param options
 	 * @return
 	 */
-	public boolean createIndex(String tableName, String columnName, String indexName, JSONObject options){
+	public boolean createIndex(String tableName, String columnName, String indexName, Object optionO){
+		JSONObject options = this.checkParameter(optionO);
 		Statement stmt;
 		ResultSet rs;
 		String query = "";
@@ -197,20 +227,20 @@ public class MySQLDatabase {
 			else
 				query="CREATE INDEX ";
 			if(tableName!=null&&tableName.length()>0&&columnName!=null&&indexName!=null)
-				query+= indexName+"ON "+tableName+"("+columnName+") ";
+				query+= indexName+" ON "+tableName+"("+columnName+") ";
 			else
 				return false;
 			if(options.has("using")){//{BTREE | HASH}
 				query+=" USING "+options.optString("using", "BTREE");
 			}
 			
-			rs = stmt.executeQuery(query);
+			return stmt.execute(query);
 			
 		} catch (SQLException e) {
 			System.out.println(" Problems executing the query: "+query);
 			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -219,16 +249,19 @@ public class MySQLDatabase {
 	 * @param info
 	 * @return null, if the object could not be inserted.
 	 */
-	public Object insert(String tableName, JSONObject info){
-		return insert(tableName, info, info);
+	public boolean insert(String tableName, Object infoO){
+		JSONObject info = this.checkParameter(infoO);
+		 return insert(tableName, info, null);
 	}
 	/**
-	 * This function inserts a new entry in the tableName and return its corresponding primary key.
+	 * This function inserts a new entry in the tableName and returns its corresponding primary key.
 	 * @param tableName
 	 * @param info
 	 * @return null, if the object could not be inserted.
 	 */
-	public Object insert(String tableName, JSONObject info, JSONObject options){
+	public boolean insert(String tableName, Object infoO, Object optionsO){
+		JSONObject info = this.checkParameter(infoO);
+		JSONObject options = this.checkParameter(optionsO);
 		
 		if(options==null)
 			options=new JSONObject();
@@ -238,35 +271,40 @@ public class MySQLDatabase {
 		String names ="";
 		String values = "";
 		String key;
-		
-		ResultSet rs=null;
-			
+		Object value;
 		while(keys.hasNext()){
 			key = keys.next();
 			names+=key+",";
 			try {
-				values+=info.get(key)+", ";
+				value = info.get(key);
+				if(value instanceof String)
+					values+="\""+info.get(key)+"\",";
+				else
+					values+=info.get(key)+",";
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		//System.out.println("names "+names);
 		if(names.endsWith(",")){
-			query.substring(0, query.length()-2);
-			values.substring(0, values.length()-2);
+			names=names.substring(0, names.length()-1);
+			values=values.substring(0, values.length()-1);
 		}
 		query+=names+") VALUES ("+values+")";
 		
 		try {
 			Statement stmt;
 			stmt = connection.createStatement();
-			rs = stmt.executeQuery(query);
-		} catch (SQLException e) {
+			//System.out.println(query);
+			return stmt.execute(query);
+			//return true;
+		} catch (Exception e) {
 			System.out.println(" Problems executing the query: "+query);
 			e.printStackTrace();
 		}
 
-		return rs;
+		return false;
 	} 
 	
 	/**
@@ -277,7 +315,8 @@ public class MySQLDatabase {
 	 * @param info
 	 * @return
 	 */
-	public boolean update(String tableName, JSONObject info){
+	public boolean update(String tableName, Object infoO){
+		JSONObject info = this.checkParameter(infoO);
 		return true;
 	}
 	/**
@@ -286,8 +325,9 @@ public class MySQLDatabase {
 	 * @param info
 	 * @return
 	 */
-	public boolean delete(String tableName, JSONObject info){
-		return delete(tableName, info, null);
+	public boolean delete2(String tableName, Object infoO){
+		JSONObject info = this.checkParameter(infoO);
+		return delete2(tableName, info, null);
 	}
 	
 	
@@ -297,13 +337,20 @@ public class MySQLDatabase {
 	 * @param info
 	 * @return
 	 */
-	public boolean delete(String tableName, JSONObject info, JSONObject options){
+	public boolean delete2(String tableName, Object infoO, Object optionsO){
+		JSONObject info = this.checkParameter(infoO);
+		JSONObject options = this.checkParameter(optionsO);
 		if(options==null)
 			options=new JSONObject();
 		//Here we can include some mysql options.
 		String query="";
 		try {
-			query = "DELETE FROM "+tableName+" WHERE "+info.getString("key")+"="+info.getString("value");
+			query = "DELETE FROM "+tableName+" WHERE "+info.getString("key")+"=";
+			Object value = info.get("value");
+			if(value instanceof String)
+				query+="\""+value+"\"";
+			else
+				query+=value;
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -313,14 +360,13 @@ public class MySQLDatabase {
 		try {
 			Statement stmt;
 			stmt = connection.createStatement();
-			stmt.executeQuery(query);
+			return stmt.execute(query);
 		} catch (SQLException e) {
 			System.out.println(" Problems executing the query: "+query);
 			e.printStackTrace();
-			return false;
 		}
 
-		return true;
+		return false;
 	}
 	
 	/**
@@ -332,7 +378,8 @@ public class MySQLDatabase {
 	 * @param options
 	 * @return
 	 */
-	public JSONArray select(String tableName, String where, JSONObject options){
+	public JSONArray select(String tableName, String where, Object options){
+		//JSONObject options = this.checkParameter(optionsO);
 		MySQLTable table = new MySQLTable(tableName, connection);
 		return table.selectQuery(where, options);
 	}
@@ -351,7 +398,8 @@ public class MySQLDatabase {
 	 * @param query
 	 * @return
 	 */
-	public JSONArray select(String query, JSONObject options){
+	public JSONArray select(String query, Object optionsO){
+		JSONObject options = this.checkParameter(optionsO);
 		
 		Statement stmt;
 		ResultSet rs;
@@ -381,5 +429,13 @@ public class MySQLDatabase {
 		return null;
 	}
 	
+	public void close(){
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			System.out.println("Connection could not be closed");
+			e.printStackTrace();
+		}
+	}
 
 }
