@@ -342,7 +342,7 @@ public class MySQLDatabase extends Function{
 		JSONObject options = this.checkParameter(optionsO);
 		if(options==null)
 			options=new JSONObject();
-		//Here we can include some mysql options.
+		//Here we can include some mysql options. 
 		String query="";
 		try {
 			query = "DELETE FROM "+tableName+" WHERE "+info.getString("key")+"=";

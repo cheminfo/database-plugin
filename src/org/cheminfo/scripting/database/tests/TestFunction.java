@@ -13,8 +13,8 @@ public class TestFunction {
 	public static void main(String[] args) {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("test1");
-		list.add("test2");
-		list.add("test3");
+		list.add("test2"); 
+		list.add("test3"); 
 		Object js = BSON.from(list);
 	}
 }

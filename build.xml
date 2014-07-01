@@ -46,18 +46,6 @@
 		<antcall target="clean">
 		</antcall>
 		<mkdir dir="${depdir}" />
-		<unjar  src="../library/lib/lingpipe-2.4.0.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/jgap.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/jfftpack.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/httpmime-4.3.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/httpcore-4.3.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/httpclient-4.3.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/f2jutil.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/commons-logging-1.1.3.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/commons-lang3-3.0.1.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/commons-codec-1.6.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/json.jar" dest="${depdir}" />
-		<unjar  src="../library/lib/xerbla.jar" dest="${depdir}" />
 		<unjar  src="../library/lib/mysql-connector-java-5.1.30-bin.jar" dest="${depdir}" />
 		<unjar  src="../library/lib/mongo-java-driver-2.11.3.jar" dest="${depdir}" />
 	</target>
@@ -75,7 +63,17 @@
             	<include name="**/*.js" />
             	<include name="**/*.txt" />
             	<include name="plugin.properties" />
-            </fileset>
+            </fileset><fileset dir="${depdir}">
+				<exclude name="META-INF/**" />
+				<exclude name="**/*.java" />
+				<exclude name="**/*.mol" />
+				<exclude name="**/*dx" />
+				<exclude name="**/*.dtd" />
+				<exclude name="**/README" />
+				<exclude name="**/version.properties" />
+				<exclude name="**/log4j.properties" />
+				<exclude name="**/build.properties" />
+			</fileset>
         </jar>
     </target>
 	
@@ -89,18 +87,19 @@
 			-outjar jars/databasePlugin.jar
 			-verbose
 			-ignorewarnings
-			-dontusemixedcaseclassnames
 			
 
 			-keep public class org.cheminfo.scripting.database.*.* {public *;}
 			-keep public class org.cheminfo.database.*.* {public *;}
+			-keep public class org.gjt.mm.mysql.Driver { *;}
 			
-			-keep public class com.mysql.jdbc.* {public *;}
-			-keep public class com.mysql.jdbc.*.* {public *;}
-			-keep public class com.mysql.jdbc.*.*.* {public *;}
-			-keep public class com.mysql.fabric.* {public *;}
-			-keep public class com.mysql.fabric.*.* {public *;}
-			-keep public class com.mysql.fabric.*.*.* {public *;}
+			-keep public class com.mysql.jdbc.* { *;}
+			-keep public class com.mysql.jdbc.*.* { *;}
+			-keep public class com.mysql.jdbc.*.*.* { *;}
+			-keep public class com.mysql.fabric.* { *;}
+			-keep public class com.mysql.fabric.*.* { *;}
+			-keep public class com.mysql.fabric.*.*.* { *;}
+			-keep public class com.mysql.* {public *;}
 			-keep public class java.sql.Connection {public *;}
 			-keep public class java.sql.DriverManager {public *;}
 			-keep public class java.sql.ResultSet {public *;}

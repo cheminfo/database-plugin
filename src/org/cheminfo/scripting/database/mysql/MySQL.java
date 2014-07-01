@@ -5,10 +5,9 @@ import org.cheminfo.function.Function;
 public class MySQL extends Function {
 	
 	public MySQL() {
-		// try to load the MySQL driver
+		// try to load the MySQL driver 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-		
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}

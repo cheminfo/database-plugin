@@ -2,7 +2,6 @@ package org.cheminfo.scripting.database.mysql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -36,7 +35,7 @@ public class MySQLTable extends Function{
 					
 		Statement stmt;
 		ResultSet rs;
-		 
+		  
 		try {
 			if(options==null)
 				options = new JSONObject();
