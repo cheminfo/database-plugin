@@ -1,5 +1,7 @@
 package org.cheminfo.scripting.database.mysql;
 
+import java.sql.SQLException;
+
 import org.cheminfo.function.Function;
 
 public class MySQL extends Function {
@@ -14,7 +16,11 @@ public class MySQL extends Function {
 	}
 	
 	public MySQLDatabase getDb(String url) {
-		return new MySQLDatabase(url);
+		try {
+			return new MySQLDatabase(url);
+		} catch (SQLException e) {
+			return null;
+		}
 	}
 	
 	public MySQLDatabase getDb(String url, String dbName, String username, String password) {

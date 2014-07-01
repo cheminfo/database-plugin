@@ -20,13 +20,13 @@ public class MySQLDatabase extends Function{
 	
 	private Connection connection = null;
 	
-	public MySQLDatabase(String url) {
+	public MySQLDatabase(String url) throws SQLException {
 		//System.out.println(url);
-		try {
+		//try {
 			connection = DriverManager.getConnection(url);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		//} catch (SQLException e) {
+		//	e.printStackTrace();
+		//}
 		
 	}
 	

@@ -10,8 +10,13 @@ var DB = DB ? DB : {};
  */
 
 DB.MySQL = function (host,user,pass,dbname) {
-		
-	this.DBMySQL = MYSQLAPI.getDb(host,user,pass,dbname);
+	
+	var db = MYSQLAPI.getDb(host,user,pass,dbname);
+	if(db) {
+		this.DBMySQL = db;
+	} else {
+		throw Error("Problems connecting to the database: "+dbname);
+	}
 		
 };
 
